@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, AlertCircle } from 'lucide-react';
 import { useStockStore } from '@/store/stockStore';
+import { storage } from '@/utils/storage';
 import type { Stock } from '@/types/stock';
 
 interface HomePageProps {
@@ -11,8 +12,14 @@ export default function HomePage({ onStockClick }: HomePageProps) {
   const { stocks, addStock, deleteStock, loadStocks } = useStockStore();
   const [isAdding, setIsAdding] = useState(false);
   const [newStockName, setNewStockName] = useState('');
+  const [storageAvailable, setStorageAvailable] = useState(true);
 
   useEffect(() => {
+    // 檢查存儲是否可用
+    const available = storage.isAvailable();
+    setStorageAvailable(available);
+    
+    // 加載股票數據
     loadStocks();
   }, [loadStocks]);
 
@@ -36,6 +43,13 @@ export default function HomePage({ onStockClick }: HomePageProps) {
         <h1 className="text-2xl font-bold text-[#1e3a5f] text-center mb-8">
           股票計算器
         </h1>
+
+        {!storageAvailable && (
+          <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center gap-2 text-sm text-yellow-800">
+            <AlertCircle size={18} />
+            <span>瀏覽器存儲不可用，數據可能無法保存</span>
+          </div>
+        )}
 
         <div className="space-y-3">
           {stocks.map((stock) => (
